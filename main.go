@@ -23,28 +23,41 @@ func Clone(repository, tempRepository string) {
     }
   }
 
-
-var wk = func(path string, info os.FileInfo, err error) error {
-  if info.IsDir() {
-    return nil
-  }
-
-  if !strings.Contains(info.Name(),".dll") {
-    return nil
-  }
- 
-  fmt.Println(info.Name()) 
-  return err  
-}
-
-func Files(tempRepository string) {  
+func Files(tempRepository string) (dependencies map[string]int) {  
   
+  dependencies = make(map[string]int)  
+
+  wk := func(path string, info os.FileInfo, err error) error {
+    if err != nil {
+      return err 
+    }
+
+    if info.IsDir() {
+      return nil
+    }
+    
+    if !strings.Contains(info.Name(), ".dll") {
+      return nil
+    }
+
+     val, ok := dependencies[info.Name()]
+     
+    if ok == false {
+      dependencies[info.Name()] = 1
+    } else {
+      dependencies[info.Name()] = val+1
+    }
+   
+    return err 
+   }
+
   err := filepath.Walk(tempRepository, wk)
   if err != nil {
     log.Fatal(err)
   }
-}
 
+  return
+}
 
 func main() {
  
@@ -60,21 +73,23 @@ func main() {
 
   lines, err := reader.ReadAll()
     
-  repositories := make(map[string]string)
+  repositoriesUrls := make(map[string]string)
 
   for _, value := range lines {
-    repositories[value[0]] = value[1]
+    repositoriesUrls[value[0]] = value[1]
   }
-  
 
-//  dependencies := make(map[string]map[string]int)
+  
+  dependencies := make(map[string]map[string]int)
 
   tempRepository := os.TempDir() + "/tempRepo"
-  for name, repository := range repositories {
+  for name, repository := range repositoriesUrls {
     Clean(tempRepository)
     Clone(repository, tempRepository)
     fmt.Println(name)     
-    Files(tempRepository)
+    dependencies[name] = Files(tempRepository)       
   }
+
+  fmt.Println(dependencies)
 
 }
