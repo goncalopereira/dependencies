@@ -9,6 +9,7 @@ import (
   "dependencies/git"
   "dependencies/writer"
   "dependencies/reader"
+  "bufio"
 )
 
 func Display(name string, dependencies map[string]int) {
@@ -20,6 +21,7 @@ func Display(name string, dependencies map[string]int) {
 
 type Repository struct {
   dlls map[string]int
+  usings map[string]int
 }
 
 func (r *Repository) DllCount(filename string) {
@@ -38,10 +40,43 @@ func (r *Repository) DllCount(filename string) {
     return
 }
 
+func (r *Repository) FileScan(path string) {
+  if !strings.Contains(path,".cs") {
+    return
+  }
+
+  file, err := os.Open(path)
+
+  if err != nil {
+    return
+  }
+
+  defer file.Close()
+
+  scanner :=bufio.NewScanner(file)
+  for scanner.Scan() {
+    line := scanner.Text()
+    if strings.HasPrefix(line, "using ") {
+
+      line = strings.TrimPrefix(line, "using ")
+      line = strings.TrimSuffix(line,";")
+    
+      val, ok := r.usings[line]
+
+      if ok == false {
+        r.usings[line] = 1
+      } else {
+        r.usings[line] = val+1
+      }
+    }
+  }
+}
+
 func Files(tempRepository string) (r Repository)  {  
   
   r = Repository {
-    dlls: make(map[string]int)}
+    dlls: make(map[string]int),
+    usings: make(map[string]int)}
 
   wk := func(path string, info os.FileInfo, err error) error {
     if err != nil {
@@ -53,6 +88,7 @@ func Files(tempRepository string) (r Repository)  {
     }
 
     r.DllCount(info.Name())
+    r.FileScan(path)
    
     return err 
   }
@@ -84,7 +120,7 @@ func main() {
 
     r := Files(tempRepository)       
     Display(name, r.dlls)
-
+    Display(name, r.usings)
     writer.Write(name, r.dlls)
 
     if err != nil {
