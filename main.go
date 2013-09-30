@@ -10,6 +10,15 @@ import (
   "strings"
 )
 
+func Display(dependencies map[string]map[string]int) {
+  for name, dep := range dependencies {
+    fmt.Println(name)
+    for dll, count := range dep {
+      fmt.Printf("%s %d\n", dll, count)
+    }
+  }
+}
+
 func Clean(tempRepository string) {
   os.RemoveAll(tempRepository)
 }
@@ -86,10 +95,9 @@ func main() {
   for name, repository := range repositoriesUrls {
     Clean(tempRepository)
     Clone(repository, tempRepository)
-    fmt.Println(name)     
     dependencies[name] = Files(tempRepository)       
   }
 
-  fmt.Println(dependencies)
+  Display(dependencies)
 
 }
