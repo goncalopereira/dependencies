@@ -32,7 +32,7 @@ func Clone(repository, tempRepository string) {
     }
   }
 
-func Files(tempRepository string) (dependencies map[string]int) {  
+func Files(tempRepository string, generic map[string]int) (dependencies map[string]int, generic_dependencies map[string]int) {  
   
   dependencies = make(map[string]int)  
 
@@ -49,12 +49,19 @@ func Files(tempRepository string) (dependencies map[string]int) {
       return nil
     }
 
-     val, ok := dependencies[info.Name()]
-     
+    val, ok := dependencies[info.Name()]
+    generic_val, generic_ok := generic_dependencies[info.Name()]
+ 
     if ok == false {
       dependencies[info.Name()] = 1
     } else {
       dependencies[info.Name()] = val+1
+    }
+  
+    if generic_ok == false {
+      generic[info.Name()] = 1
+    } else {
+      generic[info.Name()] = generic_val+1
     }
    
     return err 
@@ -65,7 +72,7 @@ func Files(tempRepository string) (dependencies map[string]int) {
     log.Fatal(err)
   }
 
-  return
+  return dependencies, generic
 }
 
 func main() {
@@ -87,17 +94,21 @@ func main() {
   for _, value := range lines {
     repositoriesUrls[value[0]] = value[1]
   }
-
   
   dependencies := make(map[string]map[string]int)
+  generic_dependencies := make(map[string]int)
 
   tempRepository := os.TempDir() + "/tempRepo"
   for name, repository := range repositoriesUrls {
     Clean(tempRepository)
     Clone(repository, tempRepository)
-    dependencies[name] = Files(tempRepository)       
+    dependencies[name], generic_dependencies = Files(tempRepository, generic_dependencies)       
   }
 
   Display(dependencies)
-
+ 
+  fmt.Println("ALL") 
+  for name, val := range generic_dependencies {
+    fmt.Printf("%s %d\n", name, val) 
+  }
 }
