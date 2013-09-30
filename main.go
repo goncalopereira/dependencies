@@ -4,6 +4,8 @@ import (
   "os"
   "fmt"
   "encoding/csv"
+  "os/exec"
+  "log"
 )
 
 func Clean(tempRepository string) {
@@ -11,9 +13,14 @@ func Clean(tempRepository string) {
 }
 
 func Clone(repository, tempRepository string) {
-  command := "git clone " + repository + " " + tempRepository
-  fmt.Println(command)
-}
+   cmd :=  exec.Command("git","clone",repository,tempRepository)
+    
+   err := cmd.Run()
+   if err != nil {
+    log.Fatal(err)
+    }
+  }
+
 
 func main() {
  
