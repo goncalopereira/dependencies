@@ -7,8 +7,8 @@ import (
   "log"
   "path/filepath"
   "strings"
-  "strconv"
   "dependencies/git"
+  "dependencies/writer"
 )
 
 func Display(name string, dependencies map[string]int) {
@@ -97,29 +97,8 @@ func main() {
     dependencies = Files(tempRepository)       
     Display(name, dependencies)
 
-    file, err = os.Create("output/" + name +"_dll.csv")
-    if err != nil {
-      log.Fatal(err)
-    }
+    writer.Write(name, dependencies)
 
-    defer file.Close()
- 
-    writer := csv.NewWriter(file)
-
-    aDependencies := make([][]string, len(dependencies))
-
-    i:=0
-    for key, value := range dependencies {
-      row := make([]string, 2)
-      row[0] = key
-      row[1] = strconv.Itoa(value)
-      aDependencies[i] = row
-
-      i++ 
-    }
-
-    err = writer.WriteAll(aDependencies)
-  
     if err != nil {
       log.Fatal(err)
     }
