@@ -109,11 +109,10 @@ func main() {
     log.Fatal(err)
   }
 
-  tempRepository := os.TempDir() + "/tempRepo"
   for name, repository := range repositoriesUrls {
+    tempRepository := os.TempDir() + "/tempRepo"
     git.Clean(tempRepository)
     err := git.Clone(repository, tempRepository)
-
     if err != nil {
       log.Fatal(err)
     }
