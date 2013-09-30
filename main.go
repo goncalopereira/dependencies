@@ -4,11 +4,11 @@ import (
   "os"
   "fmt"
   "encoding/csv"
-  "os/exec"
   "log"
   "path/filepath"
   "strings"
   "strconv"
+  "dependencies/git"
 )
 
 func Display(name string, dependencies map[string]int) {
@@ -17,20 +17,6 @@ func Display(name string, dependencies map[string]int) {
       fmt.Printf("%s %d\n", dll, count)   
   }
 }
-
-func Clean(tempRepository string) {
-  os.RemoveAll(tempRepository)
-}
-
-func Clone(repository, tempRepository string) {
-   cmd :=  exec.Command("git","clone",repository,tempRepository)
-    
-   err := cmd.Run()
-   if err != nil {
-    log.Fatal(err)
-    }
-  }
-
 
 func CountsFromFileName(filename string, dependencies map[string]int) (depCount int) {
      if !strings.Contains(filename, ".dll") {
@@ -101,12 +87,17 @@ func main() {
 
   tempRepository := os.TempDir() + "/tempRepo"
   for name, repository := range repositoriesUrls {
-    Clean(tempRepository)
-    Clone(repository, tempRepository)
+    git.Clean(tempRepository)
+    err := git.Clone(repository, tempRepository)
+
+    if err != nil {
+      log.Fatal(err)
+    }
+
     dependencies = Files(tempRepository)       
     Display(name, dependencies)
 
-    file, err := os.Create("output/" + name +"_dll.csv")
+    file, err = os.Create("output/" + name +"_dll.csv")
     if err != nil {
       log.Fatal(err)
     }
