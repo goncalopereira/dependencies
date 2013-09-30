@@ -6,6 +6,7 @@ import (
   "encoding/csv"
   "os/exec"
   "log"
+  "path/filepath"
 )
 
 func Clean(tempRepository string) {
@@ -20,6 +21,20 @@ func Clone(repository, tempRepository string) {
     log.Fatal(err)
     }
   }
+
+
+var wk = func(path string, info os.FileInfo, err error) error {
+  fmt.Println(path)
+  return err
+}
+
+func Files(tempRepository string) {  
+  
+  err := filepath.Walk(tempRepository, wk)
+  if err != nil {
+    log.Fatal(err)
+  }
+}
 
 
 func main() {
@@ -50,6 +65,7 @@ func main() {
     Clean(tempRepository)
     Clone(repository, tempRepository)
     fmt.Println(name)     
+    Files(tempRepository)
   }
 
 }
