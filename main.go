@@ -7,6 +7,7 @@ import (
   "os/exec"
   "log"
   "path/filepath"
+  "strings"
 )
 
 func Clean(tempRepository string) {
@@ -24,8 +25,16 @@ func Clone(repository, tempRepository string) {
 
 
 var wk = func(path string, info os.FileInfo, err error) error {
-  fmt.Println(path)
-  return err
+  if info.IsDir() {
+    return nil
+  }
+
+  if !strings.Contains(info.Name(),".dll") {
+    return nil
+  }
+ 
+  fmt.Println(info.Name()) 
+  return err  
 }
 
 func Files(tempRepository string) {  
