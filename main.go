@@ -18,25 +18,30 @@ func Display(name string, dependencies map[string]int) {
   }
 }
 
-func CountsFromFileName(filename string, dependencies map[string]int) (depCount int) {
+type Repository struct {
+  dlls map[string]int
+}
+
+func (r *Repository) DllCount(filename string) {
      if !strings.Contains(filename, ".dll") {
-      return 0
+      return
     }
 
-    val, ok := dependencies[filename]
+    val, ok := r.dlls[filename]
  
     if ok == false {
-      depCount = 1
+      r.dlls[filename] = 1
     } else {
-      depCount =  val+1
+      r.dlls[filename] = val+1
     }
   
     return
 }
 
-func Files(tempRepository string) (dependencies map[string]int) {  
+func Files(tempRepository string) (r Repository)  {  
   
-  dependencies = make(map[string]int)  
+  r = Repository {
+    dlls: make(map[string]int)}
 
   wk := func(path string, info os.FileInfo, err error) error {
     if err != nil {
@@ -47,20 +52,17 @@ func Files(tempRepository string) (dependencies map[string]int) {
       return nil
     }
 
-    depCount := CountsFromFileName(info.Name(), dependencies) 
-    if depCount != 0 {
-      dependencies[info.Name()] = depCount
-    }
+    r.DllCount(info.Name())
    
     return err 
-   }
+  }
 
   err := filepath.Walk(tempRepository, wk)
   if err != nil {
     log.Fatal(err)
   }
 
-  return dependencies
+  return 
 }
 
 func main() {
@@ -71,8 +73,6 @@ func main() {
     log.Fatal(err)
   }
 
-  dependencies := make(map[string]int)
-
   tempRepository := os.TempDir() + "/tempRepo"
   for name, repository := range repositoriesUrls {
     git.Clean(tempRepository)
@@ -82,10 +82,10 @@ func main() {
       log.Fatal(err)
     }
 
-    dependencies = Files(tempRepository)       
-    Display(name, dependencies)
+    r := Files(tempRepository)       
+    Display(name, r.dlls)
 
-    writer.Write(name, dependencies)
+    writer.Write(name, r.dlls)
 
     if err != nil {
       log.Fatal(err)
