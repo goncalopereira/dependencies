@@ -32,7 +32,24 @@ func Clone(repository, tempRepository string) {
     }
   }
 
-func Files(tempRepository string, generic map[string]int) (dependencies map[string]int, generic_dependencies map[string]int) {  
+
+func CountsFromFileName(filename string, dependencies map[string]int) (depCount int) {
+     if !strings.Contains(filename, ".dll") {
+      return 0
+    }
+
+    val, ok := dependencies[filename]
+ 
+    if ok == false {
+      depCount = 1
+    } else {
+      depCount =  val+1
+    }
+  
+    return
+}
+
+func Files(tempRepository string) (dependencies map[string]int) {  
   
   dependencies = make(map[string]int)  
 
@@ -44,24 +61,10 @@ func Files(tempRepository string, generic map[string]int) (dependencies map[stri
     if info.IsDir() {
       return nil
     }
-    
-    if !strings.Contains(info.Name(), ".dll") {
-      return nil
-    }
 
-    val, ok := dependencies[info.Name()]
-    generic_val, generic_ok := generic_dependencies[info.Name()]
- 
-    if ok == false {
-      dependencies[info.Name()] = 1
-    } else {
-      dependencies[info.Name()] = val+1
-    }
-  
-    if generic_ok == false {
-      generic[info.Name()] = 1
-    } else {
-      generic[info.Name()] = generic_val+1
+    depCount := CountsFromFileName(info.Name(), dependencies) 
+    if depCount != 0 {
+      dependencies[info.Name()] = depCount
     }
    
     return err 
@@ -72,7 +75,7 @@ func Files(tempRepository string, generic map[string]int) (dependencies map[stri
     log.Fatal(err)
   }
 
-  return dependencies, generic
+  return dependencies
 }
 
 func main() {
@@ -96,19 +99,14 @@ func main() {
   }
   
   dependencies := make(map[string]map[string]int)
-  generic_dependencies := make(map[string]int)
 
   tempRepository := os.TempDir() + "/tempRepo"
   for name, repository := range repositoriesUrls {
     Clean(tempRepository)
     Clone(repository, tempRepository)
-    dependencies[name], generic_dependencies = Files(tempRepository, generic_dependencies)       
+    dependencies[name] = Files(tempRepository)       
   }
 
   Display(dependencies)
  
-  fmt.Println("ALL") 
-  for name, val := range generic_dependencies {
-    fmt.Printf("%s %d\n", name, val) 
-  }
 }
