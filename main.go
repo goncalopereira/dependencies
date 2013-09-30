@@ -3,12 +3,12 @@ package main
 import (
   "os"
   "fmt"
-  "encoding/csv"
   "log"
   "path/filepath"
   "strings"
   "dependencies/git"
   "dependencies/writer"
+  "dependencies/reader"
 )
 
 func Display(name string, dependencies map[string]int) {
@@ -65,24 +65,12 @@ func Files(tempRepository string) (dependencies map[string]int) {
 
 func main() {
  
-  file, err := os.Open("projects.csv")
+  repositoriesUrls, err := reader.Read()
   
   if err != nil {
     log.Fatal(err)
   }
-  
-  defer file.Close()
 
-  reader := csv.NewReader(file)
-
-  lines, err := reader.ReadAll()
-    
-  repositoriesUrls := make(map[string]string)
-
-  for _, value := range lines {
-    repositoriesUrls[value[0]] = value[1]
-  }
-  
   dependencies := make(map[string]int)
 
   tempRepository := os.TempDir() + "/tempRepo"
