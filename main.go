@@ -9,7 +9,7 @@ import (
 )
 
 func Clean(tempRepository string) {
-  fmt.Println("delete " + tempRepository)  
+  os.RemoveAll(tempRepository)
 }
 
 func Clone(repository, tempRepository string) {
