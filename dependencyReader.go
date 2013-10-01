@@ -108,10 +108,13 @@ func Files(tempRepository string) (r Repository)  {
 func Execute(name, repository, dlls, usings string) error {
     
     log.Println(name)   
-    tempRepository := os.TempDir() + "/tempRepo"  
+    tempRepository := "tempRepo"  
+    log.Println("clean")
     git.Clean(tempRepository)
-    err := git.Clone(repository, tempRepository)
+    log.Println("clone")
+    out, err := git.Clone(repository, tempRepository)
     if err != nil {
+      log.Printf("%s\n",out)
       return err
     }
 
