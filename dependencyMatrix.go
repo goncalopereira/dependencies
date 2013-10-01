@@ -22,8 +22,7 @@ func SortDependencies(dependencies map[string]bool) []string {
   return sorted
 }
 
-func main() {
-  extension := "_dlls.csv"
+func matrix(extension string) {
 
   dependencies, allDependencies, err := reader.ReadCSV(extension)
 
@@ -75,5 +74,10 @@ func main() {
     writer := csv.NewWriter(file)
 
     writer.WriteAll(matrix)
+}
+
+func main() {
+  matrix("_dlls.csv")
+  matrix("_usings.csv")
 }
 

@@ -62,6 +62,8 @@ func (r *Repository) FileScan(path string) {
 
       line = strings.TrimPrefix(line, "using ")
       line = strings.TrimSuffix(line,";")
+      line_split := strings.Split(line," = ")
+      line = line_split[len(line_split)-1] 
     
       val, ok := r.usings[line]
 
