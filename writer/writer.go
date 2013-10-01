@@ -8,7 +8,7 @@ import (
 
 func Write(name string, dependencies map[string]int) error {
 
-    file, err := os.Create("output/" + name +"_dll.csv")
+    file, err := os.Create("output/" + name + ".csv")
     if err != nil {
       return err
   }

@@ -118,9 +118,10 @@ func main() {
     }
 
     r := Files(tempRepository)       
-    Display(name, r.dlls)
-    Display(name, r.usings)
-    writer.Write(name, r.dlls)
+    Display(name+"_dll", r.dlls)
+    Display(name+"_usings", r.usings)
+    writer.Write(name+"_dlls", r.dlls)
+    writer.Write(name+"_usings", r.usings)
 
     if err != nil {
       log.Fatal(err)
