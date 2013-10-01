@@ -4,6 +4,9 @@ import (
   "dependencies/reader"  
   "log"
   "sort"
+  "os"
+  "encoding/csv"
+  "strconv"
 )
 
 func SortDependencies(dependencies map[string]bool) []string {
@@ -20,7 +23,9 @@ func SortDependencies(dependencies map[string]bool) []string {
 }
 
 func main() {
-  dependencies, allDependencies, err := reader.ReadCSV("_dlls.csv")
+  extension := "_dlls.csv"
+
+  dependencies, allDependencies, err := reader.ReadCSV(extension)
 
   sortedKeys := SortDependencies(allDependencies)
 
@@ -28,18 +33,47 @@ func main() {
     log.Fatal(err)
   }
   
-  for key, deps := range dependencies {
-    log.Println(key)
-    
-    for dep, value := range deps {
-      log.Printf("%s %d\n", dep, value)
-    }
+  matrix := make([][]string, len(allDependencies)+1)
+  
+  //projects
+  matrix[0] = make([]string, len(dependencies)+1)
+  matrix[0][0] = "x"
+  
+  projId := 1
+  for projName, _ := range dependencies {
+        matrix[0][projId] = projName
+        projId++
   }
 
-  log.Println("all")
-  for _,val := range sortedKeys {
-    log.Println(val)
-  }
+  depId :=1
   
+  for _, dep := range sortedKeys {
+    matrix[depId] = make([]string, len(dependencies)+1)
+    matrix[depId][0] = dep 
+    
+    projId = 1
+    for projName, _ := range dependencies {
+      val, ok := dependencies[projName][dep]
+      if ok == true {
+        matrix[depId][projId] = strconv.Itoa(val)
+      } else {
+        matrix[depId][projId] = "0"
+      }
+      projId++
+    }
+    
+    depId++
+  }
+
+  file, err := os.Create("output/" + extension+ "_results.csv")
+    if err != nil {
+      log.Fatal(err)
+  }
+
+    defer file.Close()
+ 
+    writer := csv.NewWriter(file)
+
+    writer.WriteAll(matrix)
 }
 
