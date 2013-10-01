@@ -108,7 +108,7 @@ func Files(tempRepository string) (r Repository)  {
 func Execute(name, repository, dlls, usings string) error {
     
     log.Println(name)   
-    tempRepository := os.TempDir() + "/tempRepo"
+    tempRepository := os.TempDir() + "/tempRepo"  
     git.Clean(tempRepository)
     err := git.Clone(repository, tempRepository)
     if err != nil {
@@ -118,9 +118,7 @@ func Execute(name, repository, dlls, usings string) error {
     log.Println(tempRepository)
     r := Files(tempRepository)       
     
-    log.Println(dlls)
     writer.Write(dlls, r.dlls)
-    log.Println(usings)
     writer.Write(usings, r.usings)
 
     return err
@@ -136,10 +134,12 @@ func main() {
 
   for name, repository := range repositoriesUrls {
 
-   dlls := "output/" + name +"_dlls.csv"
-   usings := "output/" + name + "_usings.csv"
+   dlls := "./output/" + name +"_dlls.csv"
+   usings := "./output/" + name + "_usings.csv"
    
-   _, err := os.Stat(dlls)
+    _, err := os.Stat(dlls)
+   
+    log.Println(err) 
     
     if err != nil {
         err = Execute(name, repository, dlls, usings)

@@ -4,14 +4,17 @@ import (
 	"os"
 	"encoding/csv"
 	"strconv"
+  "log"
 )
 
 func Write(name string, dependencies map[string]int) error {
-
-    file, err := os.Create("output/" + name + ".csv")
+    
+    file, err := os.Create(name)
     if err != nil {
       return err
-  }
+    }
+  
+    log.Println(name)
 
     defer file.Close()
  
