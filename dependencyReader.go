@@ -105,7 +105,7 @@ func Files(tempRepository string) (r Repository)  {
   return 
 }
 
-func Execute(name, repository string) error {
+func Execute(name, repository, dlls, usings string) error {
     
     log.Println(name)   
     tempRepository := os.TempDir() + "/tempRepo"
@@ -115,13 +115,13 @@ func Execute(name, repository string) error {
       return err
     }
 
-    log.Println("files")
+    log.Println(tempRepository)
     r := Files(tempRepository)       
     
-    log.Println("dlls")
-    writer.Write(name+"_dlls.csv", r.dlls)
-    log.Println("usings")
-    writer.Write(name+"_usings.csv", r.usings)
+    log.Println(dlls)
+    writer.Write(dlls, r.dlls)
+    log.Println(usings)
+    writer.Write(usings, r.usings)
 
     return err
 }
@@ -136,10 +136,13 @@ func main() {
 
   for name, repository := range repositoriesUrls {
 
-   _, err := os.Stat("output/" + name + " _dlls.csv")
+   dlls := "output/" + name +"_dlls.csv"
+   usings := "output/" + name + "_usings.csv"
+   
+   _, err := os.Stat(dlls)
     
     if err != nil {
-        err = Execute(name, repository)
+        err = Execute(name, repository, dlls, usings)
         if err != nil {
           log.Fatal(err)
         }
