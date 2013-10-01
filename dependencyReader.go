@@ -105,6 +105,27 @@ func Files(tempRepository string) (r Repository)  {
   return 
 }
 
+func Execute(name, repository string) error {
+    
+    log.Println(name)   
+    tempRepository := os.TempDir() + "/tempRepo"
+    git.Clean(tempRepository)
+    err := git.Clone(repository, tempRepository)
+    if err != nil {
+      return err
+    }
+
+    log.Println("files")
+    r := Files(tempRepository)       
+    
+    log.Println("dlls")
+    writer.Write(name+"_dlls.csv", r.dlls)
+    log.Println("usings")
+    writer.Write(name+"_usings.csv", r.usings)
+
+    return err
+}
+
 func main() {
  
   repositoriesUrls, err := reader.ReadRepositories()
@@ -114,21 +135,14 @@ func main() {
   }
 
   for name, repository := range repositoriesUrls {
-    tempRepository := os.TempDir() + "/tempRepo"
-    git.Clean(tempRepository)
-    err := git.Clone(repository, tempRepository)
-    if err != nil {
-      log.Fatal(err)
-    }
 
-    r := Files(tempRepository)       
-    Display(name+"_dll", r.dlls)
-    Display(name+"_usings", r.usings)
-    writer.Write(name+"_dlls", r.dlls)
-    writer.Write(name+"_usings", r.usings)
-
+   _, err := os.Stat("output/" + name + " _dlls.csv")
+    
     if err != nil {
-      log.Fatal(err)
+        err = Execute(name, repository)
+        if err != nil {
+          log.Fatal(err)
+        }
     }
   }
 }

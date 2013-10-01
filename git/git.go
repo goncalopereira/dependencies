@@ -10,7 +10,7 @@ func Clean(tempRepository string) {
 }
 
 func Clone(repository, tempRepository string) error {
-	cmd :=  exec.Command("git","clone",repository,tempRepository)
+	cmd :=  exec.Command("git","clone","--depth","1",repository,tempRepository)
     
     err := cmd.Run()
    
