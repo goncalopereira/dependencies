@@ -29,6 +29,8 @@ func (r *Repository) DllCount(filename string) {
       return
     }
 
+    filename = strings.TrimSuffix(filename, ".dll")
+
     val, ok := r.dlls[filename]
  
     if ok == false {
