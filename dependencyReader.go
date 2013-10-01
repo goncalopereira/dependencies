@@ -103,7 +103,7 @@ func Files(tempRepository string) (r Repository)  {
 
 func main() {
  
-  repositoriesUrls, err := reader.Read()
+  repositoriesUrls, err := reader.ReadRepositories()
   
   if err != nil {
     log.Fatal(err)
