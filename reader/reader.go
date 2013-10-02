@@ -26,6 +26,9 @@ func FillDependencies(path string, d map[string]bool) (dependencies map[string]i
 
   for _, value := range lines {
 
+    if strings.Contains(value[0],",") {
+      log.Fatal("dependency " + value[0] + " contains comma ','")
+    }
     i, err := strconv.Atoi(value[1])
   
     if err == nil {
