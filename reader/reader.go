@@ -86,6 +86,7 @@ func ReadRepositories(filename string) (map[string]string, error) {
   for _, value := range lines {
     name := strings.Replace(value[0],"/","-",-1)
     name = strings.Replace(name,".","-",-1)
+    name = strings.Replace(name,"_","",-1)
     repositoriesUrls[name] = value[1]
   }
 
