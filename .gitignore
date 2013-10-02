@@ -1,3 +1,5 @@
+/output/
+/saved_output/
 /projects_all.csv
 /reader/.reader.go.swp
 /writer/.writer.go.swp
