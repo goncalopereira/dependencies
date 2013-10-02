@@ -129,7 +129,7 @@ func Execute(name, repository, dlls, usings string) error {
 
 func main() {
  
-  repositoriesUrls, err := reader.ReadRepositories()
+  repositoriesUrls, err := reader.ReadRepositories("projects.csv")
   
   if err != nil {
     log.Fatal(err)

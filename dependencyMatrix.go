@@ -22,46 +22,47 @@ func SortDependencies(dependencies map[string]bool) []string {
   return sorted
 }
 
+func SortProjects(dependencies map[string]map[string]int) []string {
+  sorted := make([]string, len(dependencies))
+
+  i := 0
+  for proj, _ := range dependencies {
+    sorted[i] = proj
+    i++
+  }
+
+  sort.Strings(sorted)
+  return sorted
+}
+
 func matrix(extension string) {
 
   dependencies, allDependencies, err := reader.ReadCSV(extension)
 
   sortedKeys := SortDependencies(allDependencies)
-
+  sortedProjects := SortProjects(dependencies)
+  
   if err != nil {
     log.Fatal(err)
   }
   
   matrix := make([][]string, len(allDependencies)+1)
-  
-  //projects
-  matrix[0] = make([]string, len(dependencies)+1)
-  matrix[0][0] = "x"
-  
-  projId := 1
-  for projName, _ := range dependencies {
-        matrix[0][projId] = projName
-        projId++
+  for i := 0; i < len(allDependencies)+1;i++ {
+    matrix[i] = make([]string, len(dependencies)+1)
   }
 
-  depId :=1
-  
-  for _, dep := range sortedKeys {
-    matrix[depId] = make([]string, len(dependencies)+1)
-    matrix[depId][0] = dep 
-    
-    projId = 1
-    for projName, _ := range dependencies {
-      val, ok := dependencies[projName][dep]
-      if ok == true {
-        matrix[depId][projId] = strconv.Itoa(val)
-      } else {
-        matrix[depId][projId] = "0"
-      }
-      projId++
+  matrix[0][0] = "x"
+ 
+  projId  := 1
+  for _, projName := range sortedProjects {
+    matrix[0][projId] = projName
+    depId :=1
+    for _, dependency := range sortedKeys {
+      matrix[depId][0] = dependency
+      matrix[depId][projId] = strconv.Itoa(dependencies[projName][dependency])
+      depId++
     }
-    
-    depId++
+    projId++
   }
 
   file, err := os.Create("output/" + extension+ "_results.csv")

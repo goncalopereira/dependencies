@@ -67,9 +67,9 @@ func ReadCSV(extension string) (dependencies map[string]map[string]int, allDepen
   return  
 }
  
-func ReadRepositories() (map[string]string, error) {
+func ReadRepositories(filename string) (map[string]string, error) {
 
-  file, err := os.Open("projects.csv")
+  file, err := os.Open(filename)
   
   if err != nil {
     return nil, err
