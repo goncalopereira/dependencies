@@ -50,7 +50,7 @@ func ReadCSV(extension string) (dependencies map[string]map[string]int, allDepen
 
   wk := func(path string, info os.FileInfo, err error) error {
         
-    if strings.Contains(info.Name(), extension) {
+    if strings.Contains(info.Name(), extension) && !strings.Contains(info.Name(), "result") {
     
       log.Println(info.Name())    
 
