@@ -43,7 +43,7 @@ func (r *Repository) DllCount(filename string) {
 }
 
 func (r *Repository) FileScan(path string) {
-  if !strings.Contains(path,".cs") {
+  if !strings.Contains(path,".cs") && !strings.Contains(path,".vb") {
     return
   }
 
@@ -58,7 +58,21 @@ func (r *Repository) FileScan(path string) {
   scanner :=bufio.NewScanner(file)
   for scanner.Scan() {
     line := scanner.Text()
-    if strings.HasPrefix(line, "using ") {
+
+    if strings.HasPrefix(line, "Imports ") {
+      fmt.Println(line) 
+     line = strings.TrimPrefix(line, "Imports ")
+    
+      val, ok := r.usings[line]
+
+      if ok == false {
+        r.usings[line] = 1
+      } else {
+        r.usings[line] = val+1
+      }
+    
+
+    } else if strings.HasPrefix(line, "using ") {
 
       line = strings.TrimPrefix(line, "using ")
       line = strings.TrimSuffix(line,";")
