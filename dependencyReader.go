@@ -42,8 +42,8 @@ func (r *Repository) DllCount(filename string) {
     return
 }
 
-func (r *Repository) FileScan(path string) {
-  if !strings.Contains(path,".cs") && !strings.Contains(path,".vb") {
+func (r *Repository) FileScan(path string) (wholeFile string) {
+  if !strings.HasSuffix(path,".cs") && !strings.HasSuffix(path,".vb") {
     return
   }
 
@@ -58,6 +58,8 @@ func (r *Repository) FileScan(path string) {
   scanner :=bufio.NewScanner(file)
   for scanner.Scan() {
     line := scanner.Text()
+
+    wholeFile += path+","+line+"\n"
 
     if strings.HasPrefix(line, "Imports ") {
       fmt.Println(line) 
@@ -88,10 +90,18 @@ func (r *Repository) FileScan(path string) {
       }
     }
   }
+
+  return
 }
 
-func Files(tempRepository string) (r Repository)  {  
-  
+func Files(name, tempRepository string) (r Repository)  {  
+
+  file, err := os.Create("output/code_" + name+ ".csv")
+  if err != nil {
+    log.Fatal(err)
+  }
+  defer file.Close()
+ 
   r = Repository {
     dlls: make(map[string]int),
     usings: make(map[string]int)}
@@ -106,12 +116,13 @@ func Files(tempRepository string) (r Repository)  {
     }
 
     r.DllCount(info.Name())
-    r.FileScan(path)
+    wholeFile := r.FileScan(path)
+    file.WriteString(wholeFile)
    
     return err 
   }
 
-  err := filepath.Walk(tempRepository, wk)
+  err = filepath.Walk(tempRepository, wk)
   if err != nil {
     log.Fatal(err)
   }
@@ -133,7 +144,7 @@ func Execute(name, repository, dlls, usings string) error {
     }
 
     log.Println(tempRepository)
-    r := Files(tempRepository)       
+    r := Files(name, tempRepository)       
     
     writer.Write(dlls, r.dlls)
     writer.Write(usings, r.usings)
