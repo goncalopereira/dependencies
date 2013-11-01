@@ -43,7 +43,7 @@ func (r *Repository) DllCount(filename string) {
 }
 
 func (r *Repository) FileScan(path string) (wholeFile string) {
-  if !strings.HasSuffix(path,".cs") && !strings.HasSuffix(path,".vb") {
+  if !strings.HasSuffix(path,".cs") && !strings.HasSuffix(path,".vb") && !strings.HasSuffix(path,".config") && !strings.Contains(path,".asp") {
     return
   }
 
