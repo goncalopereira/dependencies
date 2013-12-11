@@ -134,9 +134,7 @@ func Execute(name, repository, dlls, usings string) error {
     
     log.Println(name)   
     tempRepository := "tempRepo"  
-    log.Println("clean")
     git.Clean(tempRepository)
-    log.Println("clone")
     out, err := git.Clone(repository, tempRepository)
     if err != nil {
       log.Printf("%s\n",out)
